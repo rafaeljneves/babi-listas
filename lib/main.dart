@@ -26,25 +26,6 @@ class Tarefa {
 
 }
 
-class FileStorage{
-
-  List<int> lista = [1,2];
-
-  Future<String?> get _localPath async {
-    final currentDirectory = await getApplicationDocumentsDirectory();
-    return currentDirectory.path;
-  }
-  Future<File> get _localFile async {
-    final currentPath = await _localPath;
-    return File('$currentPath/ab.bin');
-  }
-  Future writeFile() async {
-    final file = await _localFile;
-    await file.writeAsBytes(lista, mode: FileMode.append).whenComplete(() => lista.removeAt(0));
-        }
-}
-
-
 class MyApp extends StatelessWidget {
 
   @override
@@ -83,13 +64,32 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String? nome_da_lista;
 
- /*@override
+  File? jsonFile;
+  Directory? dir;
+  String filename = "teste2.json";
+  bool fileExists = false;
+  Map<String, String>? fileContent;
+
+ @override
   void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+   super.initState();
+   print('iniciou');
+   getApplicationDocumentsDirectory().then((Directory directory)
+   {
+     dir = directory;
+     print('dir: ${dir}');
+     print('jsonFile: ${jsonFile}');
+     jsonFile = new File(dir!.path + "/" + filename);
+     fileExists = jsonFile!.existsSync();
+     if (fileExists) setState(() => fileContent = jsonDecode(jsonFile!.readAsStringSync()));
+   });
+   }
+
+   /*WidgetsBinding.instance.addPostFrameCallback((_) async {
       await loadJson();
-    });
-  }*/
+    });*/
+
+
 
   _onSelected(int index) {
         setState(() => _selectedIndex = index);
@@ -104,27 +104,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Tarefa("leite", false),
     Tarefa("mate", false)
   ];
-
-
-/*
-var items = [
-    "Apple",
-    "Cherimoya",
-    "Grapefruit",
-    "Jostaberry",
-    "Plumcot",
-    "Pomegranate",
-    "Quince",
-    "Kiwi",
-    "Kiwano",
-    "Huckleberry",
-    "Marionberry",
-    "Mango",
-    "Strawberry",
-  ];
-
-  items.map((item) => ListItem(item)).toList(),
-*/
 
   List<String> listaTarefas = ['água de coco'];
 
@@ -213,35 +192,52 @@ var items = [
 
   Map<String,dynamic> a = {'a' : 'b', 'c' : {'d' : 'e'}};
 
-    Future<void> _go () async  {
+    void criaArquivo(content, Directory dir, String filename){
+      print("entrou criaArquivo");
+      File file = new File(dir.path + "/" + filename);
+      file.createSync();
+      fileExists = true;
+      file.writeAsStringSync(json.encode(content));
+    }
 
-    //String dir = (await getTemporaryDirectory()).path; 
-    //print('directory.path = ${dir}');
-    
-    //final File file = File('${dir}/a.json');
-    //file.writeAsStringSync(json.encode(a));
-    //Map<String, dynamic> myJson = await json.decode(await file.readAsString());
-    //print(myJson.toString());
+    Future<void> saveJson () async  {
 
+      String chave="Gerar Teste com JSON";
+      String valor = "false";
+      /*Map<String, String>*/ var content = <String, String>{chave: valor};
+      print("leu chave valor");
+      if (fileExists){
+        print("arquivo existe");
+        /*Map<String, String> */ var jsonFileContent = json.decode(jsonFile!.readAsStringSync());
+        print("passou jsonFileContent");
+        jsonFileContent.addAll(content);
+        print("jsonFileContent: $jsonFileContent");
+        print("json.encode(jsonFileContent): ${json.encode(jsonFileContent)}");
+        jsonFile!.writeAsStringSync(json.encode(jsonFileContent));
+        print("sera q deu erro??");
+      } else {
+        print("arquivo não existe");
+        criaArquivo(content, dir!, filename);
+      }
+      setState(() => fileContent = json.decode(jsonFile!.readAsStringSync()));
+
+
+
+    /*
     final File file = File('assets/teste.json');
     print('file: $file');
-    //String contents = await file.readAsString();
-    //await carregaTarefas(file);
-
-/*
     Tarefa novaTarefa = Tarefa('Teste NOVO',false);
     tarefas.add(novaTarefa);
-
     print("tarefas.length: ${tarefas.length}");
+    //convert list data  to json
+    tarefas.map((tarefa) => tarefa.toJson(),).toList();
+    tarefas.forEach((element) {
+           print("tarefa: ${element.nome}");
+    });
+    file.writeAsStringSync(json.encode(tarefas));
 
-    tarefas  //convert list data  to json 
-        .map(
-          (tarefa) => tarefa.toJson(),
-        )
-        .toList();
-         
-      file.writeAsStringSync(json.encode(tarefas));
-*/
+     */
+
     }
 
 
@@ -254,8 +250,7 @@ var items = [
             
             Tarefa tarefa = Tarefa(p['nome'],p['riscado']);
             tarefas.add(tarefa);
-        }    
-      
+        }
     }
 
 
@@ -284,10 +279,6 @@ var items = [
           }),
     );
 
-   setState(() { 
-         _carregouLista = true;
-         print('_carregouLista: ${_carregouLista}');
-         });   
 }
 
   void _onItemTapped(int index) {
@@ -420,14 +411,14 @@ var items = [
                 FloatingActionButton(
                     onPressed:  () {                                
                                    final result = _showTextInputDialog(context);
-                                   print('abriu tela de dialogo');
+                                   print('tela Inclui item');
                                  },
                     tooltip: 'Inclui item',
                     child: Icon(Icons.add),
                 ), 
                 Spacer(),
                 FloatingActionButton(
-                    onPressed:  () => _go(),  
+                    onPressed:  () => saveJson(),
 
                     tooltip: 'Salvar lista',
                     child: Icon(Icons.save_alt),
@@ -503,7 +494,7 @@ var items = [
 
     Widget espacos(){
     return Padding(
-      padding: EdgeInsets.all(64.0),   //64.0
+      padding: EdgeInsets.all(4.0),   //64.0
       child: Row(
         children: [
           /*Expanded(
