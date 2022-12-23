@@ -1,0 +1,35 @@
+{
+  "compras": [
+        {
+          "nome": "manteiga",
+          "riscado": false
+        },
+        {
+          "nome": "queijo",
+          "riscado": false
+        },
+        {
+          "nome": "goiabada",
+          "riscado": false        
+        },
+        {
+          "nome": "sabonete",
+          "riscado": false        
+        }
+],
+  "consertos": [
+        {
+          "nome": "TV",
+          "riscado": false
+        },
+        {
+          "nome": "Notebook",
+          "riscado": false
+        },
+        {
+          "nome": "Celular",
+          "riscado": false
+
+        }
+]
+}

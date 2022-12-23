@@ -1,0 +1,18 @@
+[
+        {
+          "nome": "manteiga",
+          "riscado": false
+        },
+        {
+          "nome": "queijo",
+          "riscado": false
+        },
+        {
+          "nome": "goiabada",
+          "riscado": false        
+        },
+        {
+          "nome": "sabonete",
+          "riscado": false        
+        }
+]
