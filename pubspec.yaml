@@ -1,4 +1,4 @@
-name: BabiListas
+name: afazeresv2
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -60,6 +60,7 @@ flutter:
   assets:
       - assets/data.json
       - assets/teste.json
+      - assets/temp.json
       - assets/icon/babi.jpg
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

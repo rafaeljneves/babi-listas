@@ -16,6 +16,12 @@ class Tarefa {
 
   Tarefa(this.nome, this.riscado);
 
+  Tarefa.fromJson(Map<String, dynamic> json) {
+    nome = json['nome'];
+    riscado = json['riscado'];
+
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['nome'] = this.nome;
@@ -66,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   File? jsonFile;
   Directory? dir;
-  String filename = "teste2.json";
+  String filename = "teste122.json";
   bool fileExists = false;
   Map<String, String>? fileContent;
 
@@ -74,14 +80,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
    super.initState();
    print('iniciou');
+   //readJson2;
    getApplicationDocumentsDirectory().then((Directory directory)
    {
      dir = directory;
      print('dir: ${dir}');
-     print('jsonFile: ${jsonFile}');
      jsonFile = new File(dir!.path + "/" + filename);
+     print('jsonFile: ${jsonFile}');
      fileExists = jsonFile!.existsSync();
-     if (fileExists) setState(() => fileContent = jsonDecode(jsonFile!.readAsStringSync()));
+     print('fileExists: ${fileExists}');
+    // if (fileExists) setState(() => fileContent = jsonDecode(jsonFile!.readAsStringSync()));
    });
    }
 
@@ -97,15 +105,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
  bool _carregouLista = false;
 
- final listaTarefasBD = [
+ /*final listaTarefasBD = [
     Tarefa("banana", false),
     Tarefa("queijo", false),
     Tarefa("goiabada", false),
     Tarefa("leite", false),
     Tarefa("mate", false)
-  ];
+  ]; */
 
-  List<String> listaTarefas = ['água de coco'];
+  List<String> listaTarefas = ['demanda #1'];
+
+  List<Tarefa> players = [];
 
   bool _value = false;
 
@@ -140,6 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
         isStricked.insert(0, false);
         print('_carregouLista: ${_carregouLista}');
         _carregouLista = !_carregouLista;
+        players.add(Tarefa(myController.text, false));
+
 
         
         myController.clear();
@@ -147,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context);
   }
 
-  void adicionaItemBD() {
+  /*void adicionaItemBD() {
      setState(() {
         label = myController.text;
         listaTarefasBD.add(Tarefa(label, false));
@@ -160,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
         myController.clear();
      });
     Navigator.pop(context);
-  }
+  }*/
 
 
   Future<void> readJson() async {
@@ -180,6 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
       print('length = $len');
       setState(() {
         _items = data[nome_da_lista];
+        listaTarefas = [];
         print('_items: ${_items}');
         for(var i=0;i<len;i++){            
             listaTarefas.add(_items[i]["nome"]);
@@ -204,22 +217,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
       String chave="Gerar Teste com JSON";
       String valor = "false";
-      /*Map<String, String>*/ var content = <String, String>{chave: valor};
-      print("leu chave valor");
+      var content = <String, String>{chave: valor};
+
       if (fileExists){
-        print("arquivo existe");
-        /*Map<String, String> */ var jsonFileContent = json.decode(jsonFile!.readAsStringSync());
-        print("passou jsonFileContent");
+       var jsonFileContent = json.decode(jsonFile!.readAsStringSync());
         jsonFileContent.addAll(content);
-        print("jsonFileContent: $jsonFileContent");
-        print("json.encode(jsonFileContent): ${json.encode(jsonFileContent)}");
         jsonFile!.writeAsStringSync(json.encode(jsonFileContent));
-        print("sera q deu erro??");
       } else {
         print("arquivo não existe");
         criaArquivo(content, dir!, filename);
       }
-      setState(() => fileContent = json.decode(jsonFile!.readAsStringSync()));
+      setState(() {
+        fileContent = json.decode(jsonFile!.readAsStringSync());
+
+      });
 
 
 
@@ -240,6 +251,125 @@ class _MyHomePageState extends State<MyHomePage> {
 
     }
 
+  Future<void> saveJson2 () async  {
+    final File file = File('assets/temp.json'); //load the json file
+    await readJson2(file); //read data from json file
+
+    Tarefa newPlayer = Tarefa(  //add a new item to data list
+        'Sera q vai',
+        false
+    );
+
+    players.add(newPlayer);
+
+    print(players.length);
+
+    players  //convert list data  to json
+        .map(
+          (player) => player.toJson(),
+    )
+        .toList();
+    print('antes write');
+    file.writeAsStringSync(json.encode(players));  //write (the whole list) to json file
+    print('depois write');
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    print("path: $path");
+    return File('$path/teste2.json');
+  }
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    print("directory: $directory");
+    return directory.path;
+  }
+
+  Future<int> readDate() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      String contents = await file.readAsString();
+      print('Date read from file!!!: ' + contents);
+
+      final data = await json.decode(contents);
+      int len = data[nome_da_lista].length;
+      print('length: $len');
+      //setState(() {
+        _items = data[nome_da_lista];
+        listaTarefas = [];
+        print('listaTarefas: $listaTarefas');
+        print('_items: $_items');
+        for(var i=0;i<len;i++){
+          listaTarefas.add(_items[i]["nome"]);
+          isStricked.insert(0, _items[i]["riscado"]);
+          print(listaTarefas[i]);
+        }
+
+
+      var jsonResponse = jsonDecode(contents);
+
+      for(var p in jsonResponse){
+
+        Tarefa player = Tarefa(p['nome'],p['riscado']);
+        players.add(player);
+      }
+      //});
+
+      return 1;
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  Future<File> writeDate() async {
+    final file = await _localFile;
+
+    setState(() {
+      players = [];
+    });
+
+    //add a new item to data list
+    Tarefa newPlayer;
+
+    for(var i=0;i<listaTarefas.length;i++){
+      newPlayer = Tarefa(listaTarefas[i], isStricked[i]);
+      players.add(newPlayer);
+      print(listaTarefas[i]);
+    }
+
+    print('players.length: ${players.length}');
+
+    players  //convert list data  to json
+        .map(
+          (player) => player.toJson(),
+    )
+        .toList();
+
+    return file.writeAsString(json.encode(players));  //write (the whole list) to json file
+  }
+
+  Future<void> readJson2 (File file) async {
+
+    print("entrou readJson2");
+    final String response = await rootBundle.loadString('assets/temp.json');
+    //final data = await json.decode(response);
+    //String contents = await file.readAsString();
+    print("response:  $response");
+    var jsonResponse = jsonDecode(response);
+
+    for(var p in jsonResponse){
+
+      Tarefa player = Tarefa(p['nome'],p['riscado']);
+      players.add(player);
+    }
+
+
+
+  }
+
 
     Future<void> carregaTarefas (File file) async {   
     
@@ -259,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
       width: 300,//TAM_CARD_WIDTH,
       height:300,// TAM_CARD_HEIGHT,
       child: ListView.builder(
-          itemCount: listaTarefas.length, 
+          itemCount: listaTarefas.length,
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
@@ -271,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> {
                            isStricked.insert(index, temp);
                          }); 
                         },
-                title: Text(listaTarefas[index],    
+                title: Text( listaTarefas[index],
                             style: isStricked[index] ? _strikeout : _normal,
                            ),   
               ),
@@ -335,7 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'Itens:',
             ),
-            _carregouLista ? listaItens(context) : carregaItens(context) ,
+            listaItens(context),  //_carregouLista ? listaItens(context) : carregaItens(context) ,
             espacos(),
             Row(
              mainAxisAlignment: MainAxisAlignment.center ,
@@ -389,7 +519,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       });
                                       print(_dropdownValue);
                                       nome_da_lista = _dropdownValue;
-                                      readJson();
+                                      readDate();//readJson();
                                       Navigator.pop(context);
                                      
                                     },
@@ -418,7 +548,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ), 
                 Spacer(),
                 FloatingActionButton(
-                    onPressed:  () => saveJson(),
+                    onPressed:  () => writeDate(), //saveJson2(),
 
                     tooltip: 'Salvar lista',
                     child: Icon(Icons.save_alt),
@@ -470,7 +600,7 @@ class _MyHomePageState extends State<MyHomePage> {
       width: 300,//TAM_CARD_WIDTH,
       height:500,// TAM_CARD_HEIGHT,
       child: ListView.builder(
-          itemCount: listaTarefas.length, //listaTarefasBD.length
+          itemCount: players.length, //listaTarefas.length, //listaTarefasBD.length
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
@@ -480,10 +610,11 @@ class _MyHomePageState extends State<MyHomePage> {
                            bool temp = !isStricked[index];
                            isStricked.removeAt(index);
                            isStricked.insert(index, temp);
+                           players[index].riscado = !players[index].riscado;
                          }); 
                         },
-                title: Text(listaTarefas[index],    // listaTarefasBD[index].nome,   
-                            style: isStricked[index] ? _strikeout : _normal,  //listaTarefasBD[index].riscado ? _strikeout : _normal,
+                title: Text( players[index].nome,   //listaTarefas[index],    // listaTarefasBD[index].nome,
+                            style: players[index].riscado ? _strikeout : _normal,  //isStricked[index] ? _strikeout : _normal,  //listaTarefasBD[index].riscado ? _strikeout : _normal,
                            ),   
               ),
             );
