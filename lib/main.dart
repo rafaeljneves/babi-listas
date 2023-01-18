@@ -291,13 +291,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Read the file
       String contents = await file.readAsString();
-      print('Date read from file!!!: ' + contents);
+      print('Date read from file: ' + contents);
 
       final data = await json.decode(contents);
-      int len = data[nome_da_lista].length;
+      int len = data.length;  //data[nome_da_lista].length;
       print('length: $len');
-      //setState(() {
-        _items = data[nome_da_lista];
+      setState(() {
+        players = [];
+      });
+
+        _items = data;
         listaTarefas = [];
         print('listaTarefas: $listaTarefas');
         print('_items: $_items');
@@ -433,26 +436,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: tarefa(context)
 
-        /* Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Itens:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Inclui item',
-        child: Icon(Icons.add),
-      ),
-     */
     );
   }
 
@@ -606,11 +589,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ListTile(
                 onTap: () {                           
                          setState(() {
-                           //listaTarefasBD[index].riscado = !listaTarefasBD[index].riscado;
                            bool temp = !isStricked[index];
                            isStricked.removeAt(index);
                            isStricked.insert(index, temp);
                            players[index].riscado = !players[index].riscado;
+                           print('index:  $index');
+                           print('players[index].riscado:  ${players[index].riscado}');
                          }); 
                         },
                 title: Text( players[index].nome,   //listaTarefas[index],    // listaTarefasBD[index].nome,
